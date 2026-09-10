@@ -165,21 +165,21 @@ with st.container():
         daily_total["해당일관객수"].rolling(window=7).mean()
     )
 
-    # 3. Plotly graph_objects를 활용하여 두 개의 선 그래프를 커스텀 스타일로 작성
+    # 3. Plotly graph_objects를 활용해 원본선과 이동평균선 생성
     fig_ma = go.Figure()
 
-    # 원본 선: 일일 관객수 합계 (연한 색상, 얇은 선)
+    # 원본 선 (일일 관객수 합계 - 연한 회색)
     fig_ma.add_trace(
         go.Scatter(
             x=daily_total["기준일자"],
             y=daily_total["해당일관객수"],
             mode="lines",
-            name="일일 관객수 합계 (일별)",
+            name="일일 관객수 합계",
             line=dict(color="rgba(180, 180, 180, 0.6)", width=1.5),
         )
     )
 
-    # 이동평균 선: 7일 이동평균 (진한 색상, 두꺼운 선)
+    # 이동평균 선 (7일 이동평균 - 진한 빨간색)
     fig_ma.add_trace(
         go.Scatter(
             x=daily_total["기준일자"],
@@ -190,7 +190,6 @@ with st.container():
         )
     )
 
-    # 레이아웃 설정
     fig_ma.update_layout(
         title="전체 박스오피스 일일 총 관객수 및 7일 이동평균 추이",
         xaxis_title="날짜",
@@ -203,4 +202,35 @@ with st.container():
     # 그래프 4 설명 문구
     st.info(
         "💡 **이 그래프로 알 수 있는 것:** 평일과 주말 간의 심한 관객수 변동(노이즈)을 평탄화하여, 전체 극장가의 성수기/비수기 시즌 흐름과 연중 총 관객수의 거시적인 상승/하락 트렌드를 명확하게 파악할 수 있습니다."
+    )
+
+# -------------------------------------------------------------------
+# [8. 구역 5: 막대그래프 (월별 전체 박스오피스 관객수 합계)]
+# -------------------------------------------------------------------
+st.write("---")
+with st.container():
+    st.subheader("📊 월별 전체 박스오피스 총 관객수 (막대그래프)")
+
+    # 1. '기준일자별 전체 관객수 합계(daily_total)' 데이터를 '연-월(YYYY-MM)' 형식으로 변환
+    daily_total["년월"] = daily_total["기준일자"].dt.strftime("%Y-%m")
+
+    # 2. 월(연-월) 단위로 다시 그룹화하여 합산
+    monthly_total = daily_total.groupby("년월")["해당일관객수"].sum().reset_index()
+
+    # 3. Plotly 막대그래프 생성
+    fig_bar = px.bar(
+        monthly_total,
+        x="년월",
+        y="해당일관객수",
+        title="월별 총 박스오피스 관객수 집계",
+        labels={"년월": "월(연-월)", "해당일관객수": "월간 총 관객수(명)"},
+        text_auto=",",  # 막대 위에 숫자를 1,000단위 쉼표 포맷으로 표시
+    )
+
+    fig_bar.update_layout(hovermode="x unified")
+    st.plotly_chart(fig_bar, use_container_width=True)
+
+    # 그래프 5 설명 문구
+    st.info(
+        "💡 **이 그래프로 알 수 있는 것:** 각 월별 총 관객수를 비교하여 1년 중 극장가 최고의 성수기 월(여름/겨울 방학, 연휴 등)과 비수기 월을 직관적으로 확인하고 월별 극장 이용 규모를 분석할 수 있습니다."
     )
