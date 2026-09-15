@@ -78,7 +78,6 @@ st.divider()
 # -------------------------------------------------------------------
 st.subheader("3. 총 관객 수 분포")
 
-# 히스토그램 생성
 fig_hist = px.histogram(
     df,
     x='total_audi',
@@ -103,5 +102,36 @@ st.caption(
     f"대부분의 영화가 **500만 명 미만 구간**에 집중되어 있으며, "
     f"가장 많은 관객을 모은 영화는 **'{top_movie_name}'**(약 {top_movie_audi:,}명)입니다."
 )
+
+st.divider()
+
+# -------------------------------------------------------------------
+# 구역 4: 개봉일 스크린 수와 총 관객 수의 관계 (산점도)
+# -------------------------------------------------------------------
+st.subheader("4. 개봉일 스크린 수와 총 관객 수의 관계")
+
+# 산점도 생성 (장르별 색상 구분, 마우스 오버 시 영화명 표시)
+fig_scatter = px.scatter(
+    df,
+    x='first_scrn',
+    y='total_audi',
+    color='genre',
+    hover_name='movieNm',
+    title='개봉일 스크린 수 vs 총 관객 수 (장르별 구분)',
+    labels={
+        'first_scrn': '개봉일 스크린 수',
+        'total_audi': '총 관객 수',
+        'genre': '장르'
+    }
+)
+
+fig_scatter.update_traces(
+    hovertemplate="<b>%{hovertext}</b><br>개봉일 스크린 수: %{x:,}개<br>총 관객 수: %{y:,}명<extra></extra>"
+)
+
+st.plotly_chart(fig_scatter, use_container_width=True)
+
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption("개봉일 스크린 수가 많을수록 총 관객 수가 늘어나는 양의 상관관계를 볼 수 있으며, 장르별 스크린 확보 및 흥행 성과의 분포 양상을 파악할 수 있습니다.")
 
 st.divider()
