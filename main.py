@@ -43,7 +43,7 @@ fig_donut = px.pie(
 
 # 마우스 오버(Hover) 시 편수와 비율만 명확하게 표시
 fig_donut.update_traces(
-    hovertemplate="<b>%{label}</b><br>편수: %{value}편<br>비율: %{percent}"
+    hovertemplate="<b>%{label}</b><br>편수: %{value}편<br>비율: %{percent}<extra></extra>"
 )
 
 # 그래프 출력
@@ -52,5 +52,32 @@ st.plotly_chart(fig_donut, use_container_width=True)
 # 그래프 설명 구역
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption("박스오피스 상위권 영화 중 가장 높은 비중을 차지하는 대표 장르가 무엇인지 한눈에 파악할 수 있습니다.")
+
+st.divider()
+
+# -------------------------------------------------------------------
+# 구역 2: 장르 및 영화별 총 관객 수 (트리맵)
+# -------------------------------------------------------------------
+st.subheader("2. 장르 및 영화별 총 관객 수 분포")
+
+# Plotly 트리맵 그래프 작성 (장르 -> 영화명 계층)
+fig_treemap = px.treemap(
+    df,
+    path=['genre', 'movieNm'],
+    values='total_audi',
+    title='장르 및 영화별 총 관객 수 (트리맵)'
+)
+
+# 마우스 오버(Hover) 시 영화명(또는 장르명)과 총 관객 수 표시
+fig_treemap.update_traces(
+    hovertemplate="<b>%{label}</b><br>총 관객 수: %{value:,}명<extra></extra>"
+)
+
+# 그래프 출력
+st.plotly_chart(fig_treemap, use_container_width=True)
+
+# 그래프 설명 구역
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption("장르별 전체 관객 규모와 더불어, 특정 장르 내에서 어떤 영화가 가장 많은 관객을 모으며 흥행을 이끌었는지 직관적으로 알 수 있습니다.")
 
 st.divider()
