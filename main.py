@@ -200,3 +200,26 @@ st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption("초반 흥행 화력(첫 주 관객 수)이 클수록 버블이 커지며, 개봉일 스크린 수와 최종 관객 수 사이에서 첫 주 관객 수의 영향력을 함께 다차원적으로 확인할 수 있습니다.")
 
 st.divider()
+
+# -------------------------------------------------------------------
+# 구역 7: 제작 국가 및 장르별 영화 편수 (선버스트)
+# -------------------------------------------------------------------
+st.subheader("7. 제작 국가 및 장르별 영화 편수 분포")
+
+# 선버스트 그래프 생성 (계층: nation -> genre)
+fig_sunburst = px.sunburst(
+    df,
+    path=['nation', 'genre'],
+    title='제작 국가 및 장르별 영화 편수 (선버스트)'
+)
+
+fig_sunburst.update_traces(
+    hovertemplate="<b>%{label}</b><br>영화 편수: %{value}편<extra></extra>"
+)
+
+st.plotly_chart(fig_sunburst, use_container_width=True)
+
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption("주요 제작 국가별로 어떤 장르의 영화들이 주로 개봉했는지 국가와 장르 간의 계층 구조와 비중을 한눈에 비교해 볼 수 있습니다.")
+
+st.divider()
