@@ -231,12 +231,13 @@ st.subheader("8. 제작 국가별 총 관객 수 및 장르 구성")
 # 국가별, 장르별 총 관객 수 집계
 nation_genre_audi = df.groupby(['nation', 'genre'])['total_audi'].sum().reset_index()
 
-# 누적 막대그래프 생성
+# 누적 막대그래프 생성 (custom_data에 장르 포함)
 fig_bar = px.bar(
     nation_genre_audi,
     x='nation',
     y='total_audi',
     color='genre',
+    custom_data=['genre'],
     title='제작 국가별 총 관객 수 및 장르별 관객 비중 (누적 막대)',
     labels={
         'nation': '제작 국가',
@@ -245,8 +246,9 @@ fig_bar = px.bar(
     }
 )
 
+# 마우스 오버 시 국가, 장르명, 해당 장르의 관객 수가 함께 출력되도록 설정
 fig_bar.update_traces(
-    hovertemplate="<b>국가: %{x}</b><br>장르 관객 수: %{y:,}명<extra></extra>"
+    hovertemplate="<b>국가: %{x}</b><br>장르: %{customdata[0]}<br>관객 수: %{y:,}명<extra></extra>"
 )
 
 st.plotly_chart(fig_bar, use_container_width=True)
