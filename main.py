@@ -206,7 +206,6 @@ st.divider()
 # -------------------------------------------------------------------
 st.subheader("7. 제작 국가 및 장르별 영화 편수 분포")
 
-# 선버스트 그래프 생성 (계층: nation -> genre)
 fig_sunburst = px.sunburst(
     df,
     path=['nation', 'genre'],
@@ -221,5 +220,38 @@ st.plotly_chart(fig_sunburst, use_container_width=True)
 
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
 st.caption("주요 제작 국가별로 어떤 장르의 영화들이 주로 개봉했는지 국가와 장르 간의 계층 구조와 비중을 한눈에 비교해 볼 수 있습니다.")
+
+st.divider()
+
+# -------------------------------------------------------------------
+# 구역 8: 제작 국가별 총 관객 수 및 장르 구성 (누적 막대그래프)
+# -------------------------------------------------------------------
+st.subheader("8. 제작 국가별 총 관객 수 및 장르 구성")
+
+# 국가별, 장르별 총 관객 수 집계
+nation_genre_audi = df.groupby(['nation', 'genre'])['total_audi'].sum().reset_index()
+
+# 누적 막대그래프 생성
+fig_bar = px.bar(
+    nation_genre_audi,
+    x='nation',
+    y='total_audi',
+    color='genre',
+    title='제작 국가별 총 관객 수 및 장르별 관객 비중 (누적 막대)',
+    labels={
+        'nation': '제작 국가',
+        'total_audi': '총 관객 수',
+        'genre': '장르'
+    }
+)
+
+fig_bar.update_traces(
+    hovertemplate="<b>국가: %{x}</b><br>장르 관객 수: %{y:,}명<extra></extra>"
+)
+
+st.plotly_chart(fig_bar, use_container_width=True)
+
+st.markdown("##### 💡 이 그래프로 알 수 있는 것")
+st.caption("국가별 전체 박스오피스 관객 규모를 한눈에 비교하고, 각 국가별 흥행을 주도한 대표 장르의 관객 기여도를 상세히 파악할 수 있습니다.")
 
 st.divider()
