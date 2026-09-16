@@ -224,36 +224,58 @@ st.caption("주요 제작 국가별로 어떤 장르의 영화들이 주로 개�
 st.divider()
 
 # -------------------------------------------------------------------
-# 구역 8: 제작 국가별 총 관객 수 및 장르 구성 (누적 막대그래프)
+# 구역 8: 제작 국가별 총 관객 수 및 장르 구성 (가로 누적 막대)
 # -------------------------------------------------------------------
 st.subheader("8. 제작 국가별 총 관객 수 및 장르 구성")
 
-# 국가별, 장르별 총 관객 수 집계
-nation_genre_audi = df.groupby(['nation', 'genre'])['total_audi'].sum().reset_index()
+# 소수 국가 필터링 및 옵션 설정 구역
+col1, col2 = st.columns([2, 1])
+with col1:
+    min_movies = st.slider("최소 영화 편수 기준 (미만인 국가는 '기타'로 통합)", min_value=1, max_value=10, value=3)
+with col2:
+    use_log_scale = st.checkbox("관객 수 로그 스케일 적용 (작은 막대 확대)", value=False)
 
-# 누적 막대그래프 생성 (custom_data에 장르 포함)
+# 국가별 영화 편수 집계 및 '기타' 그룹화
+df_nation = df.copy()
+nation_counts = df_nation['nation'].value_counts()
+major_nations = nation_counts[nation_counts >= min_movies].index
+
+df_nation['nation_grouped'] = df_nation['nation'].apply(lambda x: x if x in major_nations else '기타')
+
+# 국가별, 장르별 총 관객 수 집계
+nation_genre_audi = df_nation.groupby(['nation_grouped', 'genre'])['total_audi'].sum().reset_index()
+
+# 가로 누적 막대그래프 생성
 fig_bar = px.bar(
     nation_genre_audi,
-    x='nation',
-    y='total_audi',
+    y='nation_grouped',
+    x='total_audi',
     color='genre',
+    orientation='h',
     custom_data=['genre'],
-    title='제작 국가별 총 관객 수 및 장르별 관객 비중 (누적 막대)',
+    title='제작 국가별 총 관객 수 및 장르별 관객 비중 (가로 누적 막대)',
     labels={
-        'nation': '제작 국가',
+        'nation_grouped': '제작 국가',
         'total_audi': '총 관객 수',
         'genre': '장르'
     }
 )
 
-# 마우스 오버 시 국가, 장르명, 해당 장르의 관객 수가 함께 출력되도록 설정
+# 관객 수가 많은 순서대로 Y축 정렬
+fig_bar.update_layout(yaxis={'categoryorder': 'total ascending'})
+
+# 마우스 오버 시 국가, 장르명, 관객 수 표시
 fig_bar.update_traces(
-    hovertemplate="<b>국가: %{x}</b><br>장르: %{customdata[0]}<br>관객 수: %{y:,}명<extra></extra>"
+    hovertemplate="<b>국가: %{y}</b><br>장르: %{customdata[0]}<br>관객 수: %{x:,}명<extra></extra>"
 )
+
+# 로그 스케일 적용 여부
+if use_log_scale:
+    fig_bar.update_xaxes(type="log")
 
 st.plotly_chart(fig_bar, use_container_width=True)
 
 st.markdown("##### 💡 이 그래프로 알 수 있는 것")
-st.caption("국가별 전체 박스오피스 관객 규모를 한눈에 비교하고, 각 국가별 흥행을 주도한 대표 장르의 관객 기여도를 상세히 파악할 수 있습니다.")
+st.caption("국가별 전체 박스오피스 관객 규모를 한눈에 비교하고, 슬라이더 조절과 로그 스케일 전환을 통해 관객 수가 적은 소수 국가의 장르 비중까지 편리하게 확인할 수 있습니다.")
 
 st.divider()
